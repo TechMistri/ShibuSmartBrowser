@@ -1,0 +1,54 @@
+[
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/menu_menu_main.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/menu/menu_main.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/drawable_ic_launcher.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/drawable/ic_launcher.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/layout_activity_download_manager.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/layout/activity_download_manager.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/layout_activity_history.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/layout/activity_history.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/layout_activity_app_lock.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/layout/activity_app_lock.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/layout_content_main.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/layout/content_main.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/drawable_ic_launcher_round.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/drawable/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/xml_preferences.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/xml/preferences.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/layout_activity_bookmarks.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/layout/activity_bookmarks.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/layout_activity_settings.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/layout/activity_settings.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/xml_file_paths.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/layout_dialog_find_in_page.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/layout/dialog_find_in_page.xml"
+    },
+    {
+        "merged": "com.shibu.shibusmart.browser.app-merged_res-43:/layout_activity_main.xml.flat",
+        "source": "com.shibu.shibusmart.browser.app-main-45:/layout/activity_main.xml"
+    }
+]

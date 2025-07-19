@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_search_engine_entries">
+        <item>@string/search_engine_google</item>
+        <item>@string/search_engine_bing</item>
+        <item>@string/search_engine_duckduckgo</item>
+        <item>@string/search_engine_yahoo</item>
+    </string-array>
+    
+    <string-array name="pref_search_engine_values">
+        <item>google</item>
+        <item>bing</item>
+        <item>duckduckgo</item>
+        <item>yahoo</item>
+    </string-array>
+    
+    <string-array name="pref_theme_entries">
+        <item>@string/theme_light</item>
+        <item>@string/theme_dark</item>
+        <item>@string/theme_system</item>
+        <item>@string/theme_custom</item>
+    </string-array>
+    
+    <string-array name="pref_theme_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+        <item>custom</item>
+    </string-array>
+    
+    <string-array name="pref_language_entries">
+        <item>@string/language_english</item>
+        <item>@string/language_bengali</item>
+    </string-array>
+    
+    <string-array name="pref_language_values">
+        <item>en</item>
+        <item>bn</item>
+    </string-array>
+</resources>

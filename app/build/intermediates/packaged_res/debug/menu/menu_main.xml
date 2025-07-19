@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_bookmarks"
+        android:orderInCategory="100"
+        android:title="@string/action_bookmarks"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_history"
+        android:orderInCategory="101"
+        android:title="@string/action_history"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_downloads"
+        android:orderInCategory="102"
+        android:title="@string/action_downloads"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_find_in_page"
+        android:orderInCategory="103"
+        android:title="@string/action_find_in_page"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_desktop_mode"
+        android:orderInCategory="104"
+        android:title="@string/action_desktop_mode"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_night_mode"
+        android:orderInCategory="105"
+        android:title="@string/action_night_mode"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_incognito"
+        android:orderInCategory="106"
+        android:title="@string/action_incognito"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_translate"
+        android:orderInCategory="107"
+        android:title="@string/action_translate"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_summarize"
+        android:orderInCategory="108"
+        android:title="@string/action_summarize"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_save_pdf"
+        android:orderInCategory="109"
+        android:title="@string/action_save_pdf"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_share"
+        android:orderInCategory="110"
+        android:title="@string/action_share"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="111"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+</menu>
