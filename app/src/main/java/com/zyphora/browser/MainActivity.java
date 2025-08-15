@@ -1,4 +1,4 @@
-package com.shibu.shibusmart.browser;
+package com.zyphora.browser;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -35,6 +35,10 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.PopupWindow;
+import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,19 +58,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.disposables.CompositeDisposable;
+import android.webkit.JavascriptInterface;
 
 public class MainActivity extends AppCompatActivity {
+
+    public class WebAppInterface {
+        Context mContext;
+        FloatingActionButton fabDownload;
+        String videoUrl;
+
+        WebAppInterface(Context c, FloatingActionButton fab) {
+            mContext = c;
+            fabDownload = fab;
+        }
+
+        @JavascriptInterface
+        public void showDownloadButton(String url) {
+            videoUrl = url;
+            runOnUiThread(() -> {
+                fabDownload.setVisibility(View.VISIBLE);
+                fabDownload.setOnClickListener(v -> {
+                    // Show bottom sheet with download options
+                    showDownloadOptions(videoUrl);
+                });
+            });
+        }
+
+        private void showDownloadOptions(String url) {
+            DownloadBottomSheetFragment bottomSheet = DownloadBottomSheetFragment.newInstance(url);
+            bottomSheet.show(((MainActivity) mContext).getSupportFragmentManager(), bottomSheet.getTag());
+        }
+    }
 
     private static final int PERMISSION_REQUEST_CODE = 1001;
     private static final int NETWORK_SPEED_THRESHOLD_KBPS = 10; // 10 kbps threshold for lite mode
 
-    private WebView webView;
+    private ViewPager2 viewPager;
+    private TabsAdapter tabsAdapter;
     private EditText addressBar;
     private ProgressBar progressBar;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private TextView networkStatusBar;
-    private ImageButton btnBack, btnForward, btnRefresh;
-    private FloatingActionButton fabMenu;
+    private ImageButton btnBack, btnForward, btnRefresh, btnHome, btnTabs, btnMenu;
+    private FloatingActionButton fabDownload;
 
     private boolean isIncognitoMode = false;
     private boolean isDesktopMode = false;
@@ -88,42 +121,73 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, AppLockActivity.class));
         }
         
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        
         // Initialize UI components
-        webView = findViewById(R.id.web_view);
+        viewPager = findViewById(R.id.view_pager);
         addressBar = findViewById(R.id.address_bar);
         progressBar = findViewById(R.id.progress_bar);
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         networkStatusBar = findViewById(R.id.network_status_bar);
         btnBack = findViewById(R.id.btn_back);
         btnForward = findViewById(R.id.btn_forward);
         btnRefresh = findViewById(R.id.btn_refresh);
-        fabMenu = findViewById(R.id.fab_menu);
-        
-        // Set up WebView
-        setupWebView();
-        
+        btnHome = findViewById(R.id.btn_home);
+        btnTabs = findViewById(R.id.btn_tabs);
+        btnMenu = findViewById(R.id.btn_menu);
+        fabDownload = findViewById(R.id.fab_download);
+
+        // Create the first tab
+        java.util.List<Tab> tabs = new java.util.ArrayList<>();
+        tabs.add(new Tab(null, "https://www.google.com", "New Tab"));
+
+        // Create the adapter
+        tabsAdapter = new TabsAdapter(this, tabs);
+        viewPager.setAdapter(tabsAdapter);
+
         // Set up address bar
         setupAddressBar();
-        
-        // Set up navigation buttons
-        setupNavigationButtons();
-        
-        // Set up swipe to refresh
-        swipeRefreshLayout.setOnRefreshListener(() -> webView.reload());
-        
-        // Set up FAB menu
-        fabMenu.setOnClickListener(view -> showFabMenu());
-        
-        // Load homepage
-        String homepage = preferences.getString("homepage", "https://www.google.com");
-        webView.loadUrl(homepage);
-        
+
+        // Set up new buttons
+        btnBack.setOnClickListener(v -> {
+            BrowserFragment fragment = (BrowserFragment) getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+            if (fragment != null) {
+                WebView webView = fragment.getWebView();
+                if (webView.canGoBack()) {
+                    webView.goBack();
+                }
+            }
+        });
+        btnForward.setOnClickListener(v -> {
+            BrowserFragment fragment = (BrowserFragment) getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+            if (fragment != null) {
+                WebView webView = fragment.getWebView();
+                if (webView.canGoForward()) {
+                    webView.goForward();
+                }
+            }
+        });
+        btnRefresh.setOnClickListener(v -> {
+            BrowserFragment fragment = (BrowserFragment) getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+            if (fragment != null) {
+                WebView webView = fragment.getWebView();
+                webView.reload();
+            }
+        });
+        btnHome.setOnClickListener(v -> {
+            BrowserFragment fragment = (BrowserFragment) getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+            if (fragment != null) {
+                WebView webView = fragment.getWebView();
+                webView.loadUrl(preferences.getString("homepage", "https://www.google.com"));
+            }
+        });
+        btnTabs.setOnClickListener(v -> {
+            tabs.add(new Tab(null, "https://www.google.com", "New Tab"));
+            tabsAdapter.notifyItemInserted(tabs.size() - 1);
+            viewPager.setCurrentItem(tabs.size() - 1, true);
+        });
+        btnMenu.setOnClickListener(v -> showPopupMenu());
+
         // Monitor network speed
         monitorNetworkSpeed();
-        
+
         // Handle intent (e.g., when app is opened from a link)
         handleIntent(getIntent());
     }
@@ -147,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupWebView() {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
+        webView.addJavascriptInterface(new WebAppInterface(this, fabDownload), "Android");
         webSettings.setDomStorageEnabled(true);
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
@@ -181,7 +246,15 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
-                
+
+                // Inject javascript to find videos
+                view.loadUrl("javascript:(function() { " +
+                        "var videos = document.getElementsByTagName('video');" +
+                        "for (var i = 0; i < videos.length; i++) { " +
+                        "   Android.showDownloadButton(videos[i].src);" +
+                        "}" +
+                        "})()");
+
                 // Apply night mode if enabled
                 if (isNightMode) {
                     applyNightMode(view);
@@ -253,30 +326,91 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     
-    private void setupNavigationButtons() {
-        btnBack.setOnClickListener(v -> {
-            if (webView.canGoBack()) {
-                webView.goBack();
+    private void showPopupMenu() {
+        // Inflate the popup menu layout
+        View popupView = getLayoutInflater().inflate(R.layout.popup_menu, null);
+
+        // Create a new popup window
+        final android.widget.PopupWindow popupWindow = new android.widget.PopupWindow(popupView,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        // Get the list view from the popup menu layout
+        android.widget.ListView listView = popupView.findViewById(R.id.popup_menu_list);
+
+        // Create a list of menu items
+        java.util.List<MenuItem> menuItems = new java.util.ArrayList<>();
+        menuItems.add(new MenuItem("New Tab", R.drawable.ic_tabs));
+        menuItems.add(new MenuItem("New Incognito Tab", android.R.drawable.ic_secure));
+        menuItems.add(new MenuItem("Bookmarks", android.R.drawable.ic_menu_save));
+        menuItems.add(new MenuItem("History", android.R.drawable.ic_menu_recent_history));
+        menuItems.add(new MenuItem("Find in page", android.R.drawable.ic_menu_find));
+        menuItems.add(new MenuItem("Downloads", android.R.drawable.stat_sys_download));
+        menuItems.add(new MenuItem("Desktop Mode", android.R.drawable.ic_menu_compass));
+        menuItems.add(new MenuItem("Ad blocker", android.R.drawable.ic_menu_close_clear_cancel));
+        menuItems.add(new MenuItem("Save as PDF", android.R.drawable.ic_menu_save));
+        menuItems.add(new MenuItem("Translate", android.R.drawable.ic_menu_sort_by_size));
+        menuItems.add(new MenuItem("AI Summarize", android.R.drawable.ic_menu_info_details));
+        menuItems.add(new MenuItem("Settings", android.R.drawable.ic_menu_manage));
+        menuItems.add(new MenuItem("Help", android.R.drawable.ic_menu_help));
+
+        // Create an array adapter for the list view
+        PopupMenuAdapter adapter = new PopupMenuAdapter(this, menuItems);
+
+        // Set the adapter for the list view
+        listView.setAdapter(adapter);
+
+        // Set a click listener for the list view items
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            switch (position) {
+                case 0: // New Tab
+                    Toast.makeText(this, "New Tab feature coming soon!", Toast.LENGTH_SHORT).show();
+                    break;
+                case 1: // New Incognito Tab
+                    toggleIncognitoMode();
+                    break;
+                case 2: // Bookmarks
+                    startActivity(new Intent(this, BookmarksActivity.class));
+                    break;
+                case 3: // History
+                    startActivity(new Intent(this, HistoryActivity.class));
+                    break;
+                case 4: // Find in page
+                    showFindInPageDialog();
+                    break;
+                case 5: // Downloads
+                    startActivity(new Intent(this, DownloadManagerActivity.class));
+                    break;
+                case 6: // Desktop Mode
+                    toggleDesktopMode();
+                    break;
+                case 7: // Ad blocker
+                    toggleAdBlocker();
+                    break;
+                case 8: // Save as PDF
+                    createPdf();
+                    break;
+                case 9: // Translate
+                    translatePage();
+                    break;
+                case 10: // AI Summarize
+                    summarizePage();
+                    break;
+                case 11: // Settings
+                    startActivity(new Intent(this, SettingsActivity.class));
+                    break;
+                case 12: // Help
+                    Toast.makeText(this, "Help feature coming soon!", Toast.LENGTH_SHORT).show();
+                    break;
             }
+            popupWindow.dismiss();
         });
-        
-        btnForward.setOnClickListener(v -> {
-            if (webView.canGoForward()) {
-                webView.goForward();
-            }
-        });
-        
-        btnRefresh.setOnClickListener(v -> webView.reload());
-        
-        updateNavigationButtons();
-    }
-    
-    private void updateNavigationButtons() {
-        btnBack.setEnabled(webView.canGoBack());
-        btnBack.setAlpha(webView.canGoBack() ? 1.0f : 0.5f);
-        
-        btnForward.setEnabled(webView.canGoForward());
-        btnForward.setAlpha(webView.canGoForward() ? 1.0f : 0.5f);
+
+        // Set the animation style
+        popupWindow.setAnimationStyle(R.style.PopupMenuAnimation);
+
+        // Show the popup window
+        popupWindow.showAsDropDown(btnMenu);
     }
     
     private void loadUrl(String url) {
@@ -312,71 +446,6 @@ public class MainActivity extends AppCompatActivity {
         webView.loadUrl(url);
     }
     
-    private void showFabMenu() {
-        // Create a popup menu with browser actions
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String[] options = {
-                "Bookmarks",
-                "History",
-                "Downloads",
-                "Share",
-                "Find in page",
-                "Desktop mode: " + (isDesktopMode ? "On" : "Off"),
-                "Night mode: " + (isNightMode ? "On" : "Off"),
-                "Incognito mode: " + (isIncognitoMode ? "On" : "Off"),
-                "Ad blocker: " + (isAdBlockEnabled ? "On" : "Off"),
-                "Save as PDF",
-                "Translate page",
-                "AI Summarize",
-                "Settings"
-        };
-        
-        builder.setItems(options, (dialog, which) -> {
-            switch (which) {
-                case 0: // Bookmarks
-                    startActivity(new Intent(this, BookmarksActivity.class));
-                    break;
-                case 1: // History
-                    startActivity(new Intent(this, HistoryActivity.class));
-                    break;
-                case 2: // Downloads
-                    startActivity(new Intent(this, DownloadManagerActivity.class));
-                    break;
-                case 3: // Share
-                    shareUrl();
-                    break;
-                case 4: // Find in page
-                    showFindInPageDialog();
-                    break;
-                case 5: // Desktop mode
-                    toggleDesktopMode();
-                    break;
-                case 6: // Night mode
-                    toggleNightMode();
-                    break;
-                case 7: // Incognito mode
-                    toggleIncognitoMode();
-                    break;
-                case 8: // Ad blocker
-                    toggleAdBlocker();
-                    break;
-                case 9: // Save as PDF
-                    createPdf();
-                    break;
-                case 10: // Translate page
-                    translatePage();
-                    break;
-                case 11: // AI Summarize
-                    summarizePage();
-                    break;
-                case 12: // Settings
-                    startActivity(new Intent(this, SettingsActivity.class));
-                    break;
-            }
-        });
-        
-        builder.show();
-    }
     
     private void shareUrl() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -703,8 +772,19 @@ public class MainActivity extends AppCompatActivity {
     
     @Override
     public void onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack();
+        BrowserFragment fragment = (BrowserFragment) getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+        if (fragment != null) {
+            WebView webView = fragment.getWebView();
+            if (webView.canGoBack()) {
+                webView.goBack();
+            } else if (tabsAdapter.getItemCount() > 1) {
+                // Remove the current tab
+                int currentItem = viewPager.getCurrentItem();
+                ((java.util.List)tabsAdapter.getTabs()).remove(currentItem);
+                tabsAdapter.notifyItemRemoved(currentItem);
+            } else {
+                super.onBackPressed();
+            }
         } else {
             super.onBackPressed();
         }
@@ -729,4 +809,5 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.clear();
         super.onDestroy();
     }
+
 }

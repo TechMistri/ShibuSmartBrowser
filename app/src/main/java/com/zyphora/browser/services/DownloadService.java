@@ -1,4 +1,4 @@
-package com.shibu.shibusmart.browser.services;
+package com.zyphora.browser.services;
 
 import android.app.DownloadManager;
 import android.app.NotificationChannel;
@@ -17,8 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 
-import com.shibu.shibusmart.browser.DownloadManagerActivity;
-import com.shibu.shibusmart.browser.R;
+import com.zyphora.browser.DownloadManagerActivity;
+import com.zyphora.browser.R;
 
 import java.io.File;
 

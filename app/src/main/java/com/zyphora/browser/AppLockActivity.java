@@ -1,4 +1,4 @@
-package com.shibu.shibusmart.browser;
+package com.zyphora.browser;
 
 import android.content.Intent;
 import android.content.SharedPreferences;

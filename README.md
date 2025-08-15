@@ -69,7 +69,7 @@ git clone https://github.com/shibu389/ShibuSmartBrowser.git
 
 ## Project Structure
 
-- `app/src/main/java/com/shibu/shibusmart/browser/` - Main application code
+- `app/src/main/java/com/zyphora/browser/` - Main application code
 - `app/src/main/res/` - Resources (layouts, strings, etc.)
 - `app/src/main/AndroidManifest.xml` - App manifest
 

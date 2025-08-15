@@ -1,11 +1,11 @@
-package com.shibu.shibusmart.browser.services;
+package com.zyphora.browser.services;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.shibu.shibusmart.browser.ShibuSmartBrowserApp;
+import com.zyphora.browser.ZyphoraBrowserApp;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -63,7 +63,7 @@ public class VpnService extends android.net.VpnService {
                     .addAddress(VPN_ADDRESS, 32)
                     .addRoute(VPN_ROUTE, 0)
                     .addDnsServer(VPN_DNS)
-                    .setSession("ShibuSmart VPN")
+                    .setSession("Zyphora VPN")
                     .setMtu(1500);
 
             // Create VPN interface
@@ -79,7 +79,7 @@ public class VpnService extends android.net.VpnService {
             executorService.submit(new VpnRunnable(vpnInterface.getFileDescriptor()));
 
             // Save VPN state
-            SharedPreferences preferences = ShibuSmartBrowserApp.getInstance().getPreferences();
+            SharedPreferences preferences = ZyphoraBrowserApp.getInstance().getPreferences();
             preferences.edit().putBoolean("vpn_active", true).apply();
 
             Log.i(TAG, "VPN service started");
@@ -102,7 +102,7 @@ public class VpnService extends android.net.VpnService {
         }
 
         // Save VPN state
-        SharedPreferences preferences = ShibuSmartBrowserApp.getInstance().getPreferences();
+        SharedPreferences preferences = ZyphoraBrowserApp.getInstance().getPreferences();
         preferences.edit().putBoolean("vpn_active", false).apply();
 
         // Stop service

@@ -1,4 +1,4 @@
-package com.shibu.shibusmart.browser;
+package com.zyphora.browser;
 
 import android.os.Bundle;
 import android.view.MenuItem;
